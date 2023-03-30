@@ -1,0 +1,39 @@
+---
+title: "treeSimulations.Rmd"
+author: "April Wright"
+date: "2023-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(FossilSim)
+rate=2
+
+
+
+trees <- sim.fbd.taxa(n = 25, numbsim = 5, lambda = 5, mu = 3, psi = 2)
+f = sim.fossils.poisson(rate = rate, tree = trees[[1]])  
+plot(f, tree = trees[[1]])
+
+
+```
+
+| Number of Tips | Lambda | Mu |
+|----------------|-----------------|-----------------|
+| 25             | 5               | 1              |
+| 25             | 5               | 2              |
+| 25             | 5               | 3              |
+| 25             | 5               | 4              |
+| 50             | 5               | 1              |
+| 50             | 5               | 2              |
+| 50             | 5               | 3              |
+| 50             | 5               | 4              |
+| 75             | 5               | 1              |
+| 75             | 5               | 2              |
+| 75             | 5               | 3              |
+| 75             | 5               | 4              |
