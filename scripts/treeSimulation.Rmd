@@ -1,0 +1,54 @@
+---
+title: "treeSimulations.Rmd"
+author: "April Wright"
+date: "2023-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(FossilSim)
+library(ape)
+rate=2
+i <- 1
+x <-1 
+character_vector <- c(25, 50, 75) 
+mu_vector <- c(1, 2, 3, 4)
+
+for (mu in mu_vector){
+  trees <- sim.fbd.taxa(n = character_vector[3], numbsim = 5, lambda = 5, mu = mu, psi = 2)
+  for (tree in trees){
+   f = sim.fossils.poisson(rate = rate, tree = tree)
+   filename <- paste0("data/", character_vector[3], "/Mu", mu,"/", i,".csv")
+   write.csv(f, filename)
+   SAt = SAtree.from.fossils(tree = tree, fossils = f)
+   treename <- paste0("data/", character_vector[3], "/Mu", mu,"/", i, ".nex")
+   write.tree(SAt$tree, treename)
+   plot(f, tree = tree)
+   print(nrow(f))
+   i <- i + 1
+  }
+}
+
+
+```
+
+| Number of Tips | Lambda | Mu | Number of SA 1| Number of SA2 | Number of SA3 | Number of SA4 | Number of SA 5|
+|----------------|-----------------|-----------------|------|------|------|----|-----|
+| 25             | 5               | 1              |  9| 13 | 11 | 10 | 3 |
+| 25             | 5               | 2              | 16 | 10 | 25 | 10 | 10 |
+| 25             | 5               | 3              | 34 | 17 | 27 | 13 | 20 |
+| 25             | 5               | 4              | 19 | 33 | 22 | 24 | 43 |
+| 50             | 5               | 1              | 23 | 25 | 20 | 21 | 26 |
+| 50             | 5               | 2              | 31 | 26 | 28 | 23 | 26 |
+| 50             | 5               | 3              | 42 | 23 | 22 | 34 | 24 |
+| 50             | 5               | 4              | 44 | 28 | 53 | 34 | 51 |
+| 75             | 5               | 1              | 36 | 32 | 29 | 22 | 29 |
+| 75             | 5               | 2              | 38 | 39 | 51 | 30 | 37 |
+| 75             | 5               | 3              | 59 | 46 | 52 | 58 | 60 |
+| 75             | 5               | 4              | 110 | 60 | 125 | 103 | 102 |
+
