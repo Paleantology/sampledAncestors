@@ -1,0 +1,37 @@
+###########################################
+# Binary morphological substitution model #
+###########################################
+#Obtain a list of names from the Nexus file. We will use this to add tips to the tree
+names <- morpho.names()
+
+# Set up branch length hyperprior with a move
+br_len_lambda ~ dnExp(0.2)
+moves.append( mvScale(br_len_lambda, weight=2) )
+
+# Define the tree parameter.
+# First, we generate the topology.
+# We assume a uniform prior on topology.
+phylogeny ~ dnUniformTopologyBranchLength(taxa, branchLengthDistribution=dnExponential(br_len_lambda))
+moves.append( mvNNI(phylogeny, weight=num_branches/2.0) )
+moves.append( mvSPR(phylogeny, weight=num_branches/10.0) )
+moves.append( mvBranchLengthScale(phylogeny, weight=num_branches) )
+
+
+# compute the tree length from the phylogeny
+tree_length := phylogeny.treeLength()
+
+#Create the Q matrix. These data are binary, so we initialize the Jukes-Cantor matrix with
+# two states
+Q_morpho := fnJC(2)
+
+#Set up Gamma-distributed rate variation.
+alpha_morpho ~ dnExponential( 1.0 )
+rates_morpho := fnDiscretizeGamma( alpha_morpho, alpha_morpho, 4 )
+
+#Moves on the parameters to the Gamma distribution.
+moves.append(  mvScale(alpha_morpho, lambda=0.01, weight=5.0))
+moves.append( mvScale(alpha_morpho, lambda=0.1,  weight=3.0))
+moves.append( mvScale(alpha_morpho, lambda=1,    weight=1.0))
+
+phyMorpho ~ dnPhyloCTMC(tree=phylogeny, siteRates=rates_morpho, Q=Q_morpho, type="Standard")
+phyMorpho.clamp(morpho)
