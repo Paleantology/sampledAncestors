@@ -1,0 +1,120 @@
+---
+title: "Footes_Formulas"
+author: "Elijah Phifer"
+date: "2023-07-14"
+output: html_document
+---
+
+# Foote Functions
+
+This information comes from Mike Foote's paper: On the Probability of Ancestors in the Fossil Record.
+
+## Introduction
+
+There are several functions in this script that relate to species preservation probability calculations. This documentation provides an overview of each function.
+
+## `PDT(q, p, R, t)`
+
+This function calculates the probability that the duration of a species is T time units.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+
+- **Returns:**
+  The calculated probability value.
+
+## `RTerm(q, p, R, t)`
+
+This function computes the value of BigR, which is a factor that represents represents the probability of preserving a species once.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+
+- **Returns:**
+  The value of BigR (the R factor in Foote's Formulas).
+
+## `species_preserved(q, p, R, t)`
+
+This function calculates proportion of species preserved.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+
+- **Returns:**
+  The proportion calculation.
+  
+```{r}
+# Example 1: Calculate the probability of species preservation
+preservation_sum <- species_preserved(q = 0.1, p = 0.2, R = 0.8, t = 2)
+print(preservation_sum)
+```
+
+## `PoN(q, p)`
+
+This function calculates the probability that a species with duration T has exactly N direct decendents.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+
+- **Returns:**
+  The calculated proportion value.
+
+## `nPP(q, p, R, t, N)`
+
+This function calculates the probability that at least one direct decendent is preserved.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+  - `N`: The number of direct decedents.
+
+- **Returns:**
+  The calculated probability value.
+
+## `NerSum(q, p, R, t, N)`
+
+This function calculates the sum of the inner sum with in the Pa formula in Foote's paper.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+  - `N`: The number of direct decedents.
+
+- **Returns:**
+  The sum of the inner sum with in the Pa formula in Foote's paper..
+
+## `decendents_presevered(q, p, R, t, N)`
+
+This function calculates the proportion of species preserved that have at least one direct decedent preserved.
+
+- **Parameters:**
+  - `q`: The extinction rate of the species.
+  - `p`: The origination rate of the species.
+  - `R`: The probability of preserving a species at least once within the time it exists.
+  - `t`: The duration for which preservation probability is calculated.
+  - `N`: The number of direct decedents.
+
+- **Returns:**
+  The proportion of species preserved that have at least one direct decedent preserved.
+  
+```{r}
+# Example 5: Calculate the proportion of species preserved at least once out of N species
+descendants_sum <- decendents_presevered(q = 0.1, p = 0.2, R = 0.8, t = 2, N = 100)
+print(descendants_sum)
+```
+
+---
