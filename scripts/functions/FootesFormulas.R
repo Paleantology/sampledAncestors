@@ -87,6 +87,7 @@ decendents_presevered <- function(q, p, R, t, N){
   }
   
   
+  
   return(sum)
 }
 ##############################################
