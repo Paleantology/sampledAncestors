@@ -63,7 +63,7 @@ rate=2
 
 nTips = c(10, 10, 10, 10, 25, 25, 25, 25, 50, 50, 50, 50)
 Mu = c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)
-my_dir_base <- "~/Desktop/test"
+my_dir_base <- "."
 values <- data.frame(nTips, Mu)
 i <- 1
 for(row in 1:nrow(values)){
@@ -71,18 +71,20 @@ for(row in 1:nrow(values)){
   mu = values[row, "Mu"]
   trees <- sim.fbd.taxa(n = n, numbsim = 100, lambda = 5, mu = mu, psi = 2)
   i <- 1
-  my_dir <- paste0(my_dir_base, "/MU_",mu)
+  my_dir <- paste0(my_dir_base, "/MU_", n, "_", mu)
   if (!dir.exists(my_dir)) {
   dir.create(my_dir)
   }
   for(tree in trees){
+    
+    my_file <- file.path(my_dir, paste0("tree_", i, ".nex"))
+
     f = sim.fossils.poisson(rate = rate, tree = tree)
 
     tree_ape <- read.tree(text = write.tree(tree))
     
     write.nexus(tree_ape, file = my_file)
     
-    my_file <- file.path(my_dir, paste0("tree_", i, ".nex"))
     
     #plot(f, tree = tree)
     #print(nrow(f))
@@ -107,8 +109,8 @@ for(row in 1:nrow(values)){
 
 
 
-| Number of Tips | Lambda | Mu |
-|----------------|-----------------|-----------------|
+| Number of Tips | Lambda          | Mu             |
+|----------------|-----------------|----------------|
 | 10             | 5               | 1              |
 | 10             | 5               | 2              |
 | 10             | 5               | 3              |
