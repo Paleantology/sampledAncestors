@@ -1,0 +1,177 @@
+---
+title: "FBD_tutorial_1"
+author: "Elijah Phifer"
+date: "2024-06-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+#library(dplyr)
+nTips <- c(10, 10, 10, 10, 25, 25, 25, 25, 50, 50, 50, 50)
+Mu <- c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)
+trees <- 1:100
+mats <- 1:100
+my_dir_base <- "/Users/elijahphifer/Documents/other_new_sim"
+
+#~/sampledAncestors/scripts/functions/Simulations/treeSimulation.Rmd
+  #"."
+values <- data.frame(nTips, Mu)
+
+sums <- 0
+
+tr_num <- 0
+
+psi1 <- c()
+psi2 <- c()
+# Function to check if the CSV file is in the correct format
+is_correct_format <- function(df) {
+  return(all(colnames(df) == c("taxon", "min_age", "max_age")))
+}
+
+
+for(row in 1:nrow(values)){
+  n <- values[row, "nTips"]
+  mu <- values[row, "Mu"]
+  i <- 1
+  
+  my_dir <- paste0(my_dir_base, "/MU_", n, "_", mu)
+  
+
+  
+  for(tree in trees){
+
+    tree_dir <- paste0(my_dir, "/", tree)
+
+    mat_dir <- paste0(tree_dir, "/mat")
+    
+    t1file <- file.path(mat_dir, paste0("tree1_", tree, ".nex", ".csv"))
+    
+    t2file <- file.path(mat_dir, paste0("tree2_", tree, ".nex", ".csv"))
+    
+    #trfile <- paste0(tree_dir, "/", "tree_", tree, ".nex")
+    
+    if(!file.exists(t1file) |  file.info(t1file)$size == 0 ){
+      psi1 <- c(psi1, 0)
+    }else if(!file.exists(t2file) | file.info(t2file)$size == 0){
+      psi2 <- c(psi2, 0)
+    }else{
+       t1 <- read.csv(t1file)
+      psi1 <- c(psi1, nrow(t1))
+    
+        t2 <- read.csv(t2file)
+      psi2 <- c(psi2, nrow(t2))
+    }
+
+
+    
+   # for(mat in mats){
+    
+      #matfile <- paste0(mat_dir, paste0("/char_matrix_", mat,".nex"))
+
+       # matrix <- paste0(mat_dir, "/char_matrix_", mat, ".nex")
+        # Load the required library
+       
+        # file.info(tfile)$size == 0
+  
+      #if (!file.exists(trfile)) {
+       # message(paste0(trfile, " does not exist"))
+     # }else{
+      
+        #cur_tr <- ape::read.nexus(trfile)
+        #sums <- sums + sum(cur_tr$edge.length)
+        #tr_num <- tr_num + 1
+        # Rename a file in R
+        
+        
+      #  file.rename(matfile, paste0(mat_dir, "/", n, "_", mu, "_", tree,"_char_mat_", mat, ".nex" ))
+
+        #data <- read_csv(tfile, col_names = FALSE)
+        
+        # Rename the columns
+        #names(data) <- c("taxon", "taxon2", "min_age", "max_age")
+        
+        # Drop the unnecessary column
+        #data$taxon2 <- NULL
+        
+        # Write the modified data to a new CSV file
+        #write.table(data, tfile, sep = ",", row.names = FALSE, quote = FALSE)
+      
+      }
+  
+}
+
+
+
+#avg <- sums/tr_num
+
+#print(avg)
+
+    
+    print(psi1)
+    print(psi2)
+
+```
+
+```{r}
+
+library(tidyverse)
+df1 <- data.frame(psi1)
+
+df1 <- df1 %>%
+  mutate("Treatment" = "Low Psi")
+
+df2 <- data.frame(psi2)
+df2 <- df2 %>%
+  mutate("Treatment" = "High Psi")
+
+colnames(df1) <- c("value", "treatment")
+colnames(df2) <- c("value", "treatment")
+
+mega_df <- rbind(df1, df2)
+
+ggplot(data = mega_df, aes(x = value, color = treatment)) + geom_histogram(position = "jitter")
+
+
+```
+
+```{r}
+
+# Load the necessary library
+library(readr)
+f <- "/Users/elijahphifer/Documents/lab_work/MU_10_1/100/mat/tree_100.nex.csv"
+# Read the CSV file
+data <- read_csv(f, col_names = FALSE)
+
+# Rename the columns
+names(data) <- c("taxon", "taxon2", "min_age", "max_age")
+
+# Drop the unnecessary column
+data$taxon2 <- NULL
+
+# Write the modified data to a new CSV file
+write.table(data, f, sep = ",", row.names = FALSE, quote = FALSE)
+
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

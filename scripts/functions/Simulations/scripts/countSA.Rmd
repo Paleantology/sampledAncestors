@@ -1,0 +1,139 @@
+---
+title: "countSA"
+author: "Elijah Phifer"
+date: "2024-06-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE}
+
+
+
+is_num <- function(n){
+  digits <- c('1', '2', '3','4', '5', '6','7', '8', '9','0')
+  check <- n %in% digits
+  return(check)
+}
+
+count_nex_SA <- function(file_str) {
+  token_list <- c()
+  SA_list <- c()
+  num_str <- ""
+  zero <- "0"
+  tryCatch(                
+    expr = {                      
+      lines <- readLines(file_str)
+      line_start <- grep("TREE * UNTITLED = [&R]", lines, fixed = TRUE)
+      #print(line_start)
+      #print(lines[line_start])
+      
+      
+      # Split the string into individual characters
+      characters <- strsplit(lines[line_start], split = "")[[1]]
+      
+      i <- 1
+      #separate each branch:length relation into tokens in a list
+      for(char in characters){
+        if(is_num(char) | (char == ":") | (char == ".")){
+          num_str <- paste0(num_str, char)
+        } else if((char == ")") | (char == ",")){
+          token_list[length(token_list)+1] <- num_str
+          num_str <- ""
+        }
+      }
+      
+      for(token in token_list){
+        truncated_string <- sub("^[^:]*:", "", token)
+        if(truncated_string == "0"){
+          SA_list[length(SA_list)+1] <- truncated_string
+        }
+      }
+
+      amount_of_SA <- length(SA_list)
+      
+      return(amount_of_SA)
+
+    },
+    error = function(e){          
+      print("There was an error while analysing your Nexus file")
+    }
+  )
+}
+ 
+
+#nex_file <- "~/sampledAncestors/scripts/functions/Simulations/MU_10_1/tree_1.nex"
+
+#count_nex_SA(nex_file)
+
+#tree <- read.nexus(nex_file)
+
+#plot(tree)
+#print(tree$edge.length)
+
+```
+
+```{r}
+nTips <- c(0)
+Mu <- c(0)
+tree_num <- c(0)
+
+
+
+my_dir_base <- "/Users/elijahphifer/Documents/lab_work"
+  
+  #"~/sampledAncestors/scripts/functions/Simulations"
+
+nTips = c(10, 10, 10, 10, 25, 25, 25, 25, 50, 50, 50, 50)
+Mu = c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)
+#my_dir_base <- my_dir_base#"."
+values <- data.frame(nTips, Mu)
+i <- 1
+k <- 1
+for(row in 1:nrow(values)){
+  
+  n = values[row, "nTips"]
+  mu = values[row, "Mu"]
+  
+  ntips <- c(n)
+  Mu <- c(mu)
+
+  
+  my_dir <- paste0(my_dir_base, "/MU_", n, "_", mu)
+
+  
+  for(tree in 1:100){
+    i <- tree
+    tree_num <- c(i)
+    
+    tree_dir <- paste0(my_dir, "/", i)
+    
+    my_file <- file.path(tree_dir, paste0("tree_", i, ".nex"))
+
+    SA_num <- c(count_nex_SA(my_file))
+    
+    
+    df <- data.frame(ntips, mu, tree_num, SA_num)
+  
+    if((k == 1) & (i == 1)){
+      write.table(df, paste0(my_dir_base, "/SA_data.csv"), append = TRUE, sep = ",", row.names = FALSE,col.names = TRUE, quote = FALSE)
+    }else{
+      write.table(df, paste0(my_dir_base, "/SA_data.csv"), append = TRUE, sep = ",", row.names = FALSE,col.names = FALSE, quote = FALSE)
+    }
+    #tree_ape <- read.tree(text = write.tree(tree))
+    
+    #write.nexus(tree_ape, file = my_file)
+    
+    #i <- i + 1
+  }
+  k <- k + 1
+}
+
+#write.table(df, paste0(my_dir_base, "/SA_data.csv"), append = TRUE, sep = ",", row.names = FALSE,col.names = TRUE, quote = FALSE)
+
+```
+
