@@ -1,0 +1,227 @@
+---
+title: "treeSimulations.Rmd"
+author: "April Wright"
+date: "2023-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, dpi = 800)
+```
+
+```{r}
+
+library(FossilSim)
+library(ape)
+rate=2
+
+
+
+trees <- sim.fbd.taxa(n = 10, numbsim = 5, lambda = 5, mu = 1, psi = 2)
+tree <- trees[[1]]
+f = sim.fossils.poisson(rate = rate, tree = tree) 
+f1 <- sim.fossils.poisson(rate = rate, tree = tree) 
+#print(str(f))
+SAt = SAtree.from.fossils(tree = tree, fossils = f )
+my_dir <- "./plots"
+
+if (!dir.exists(paste0(my_dir))) {
+  dir.create(my_dir)
+}
+#png(file=paste0(my_dir, "/saving_plot2.png"),
+#width=600, height=350)
+plot(tree)
+plot(f, tree = tree)
+#plot(f1, tree = tree)
+plot(SAt$tree)
+tree_ape <- read.tree(text = write.tree(SAt$tree))
+plot(tree_ape)
+write.nexus(SAt$tree, file = paste0(my_dir, "/tree1.nex"))
+#dev.off()
+
+```
+
+
+```{r}
+#######CODE TO GENERATE TREES########
+library(FossilSim)
+library(ape)
+rate=2
+
+nTips = c(10, 10, 10, 10, 25, 25, 25, 25, 50, 50, 50, 50)
+Mu = c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)
+my_dir_base <- "/Users/elijahphifer/Desktop/sampledAncestors/scripts/functions/Simulations/data"
+  #"."
+values <- data.frame(nTips, Mu)
+i <- 1
+for(row in 1:nrow(values)){
+  n = values[row, "nTips"]
+  mu = values[row, "Mu"]
+  trees <- sim.fbd.taxa(n = n, numbsim = 100, lambda = 5, mu = mu, psi = 2)
+  
+  
+  
+  
+  i <- 1
+  
+  my_dir <- paste0(my_dir_base, "/MU_", n, "_", mu)
+  if (!dir.exists(my_dir)) {
+    dir.create(my_dir)
+  }
+  
+  #plot_path <- paste0(my_dir, "/plots")
+  #if (!dir.exists(plot_path)) {
+   # dir.create(plot_path)
+  #}
+      
+  
+  for(tree in trees){
+    #edge_ma_len <- tree$edge.length
+   # edge_ma <- tree$edge
+    tree_dir <- paste0(my_dir, "/", i)
+    if (!dir.exists(tree_dir)) {
+      dir.create(tree_dir)
+    }
+    
+    mat_dir <- paste0(tree_dir, "/mat")
+    if (!dir.exists(mat_dir)) {
+      dir.create(mat_dir)
+    }
+    my_file <- file.path(tree_dir, paste0("tree_", i, ".nex"))
+    
+    csv_file <- file.path(mat_dir, paste0("tree_", i, ".nex", ".csv"))
+
+    f = sim.fossils.poisson(rate = rate, tree = tree)
+    
+    SAtree <- SAtree.from.fossils(tree = tree, fossils = f)
+
+    #tree_ape <- read.tree(text = write.tree(tree))
+    
+    write.nexus(SAtre, file = my_file)
+    
+    write.table(f, paste0(csv_file), append = TRUE, sep = ",", row.names = FALSE,col.names = FALSE, quote = FALSE)
+    i <- i + 1
+  }
+}
+
+
+```
+
+```{r}
+library(FossilSim)
+library(ape)
+rate=2
+
+nTips = c(10, 10, 10, 10, 25, 25, 25, 25, 50, 50, 50, 50)
+Mu = c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)
+my_dir_base <- "/Users/elijahphifer/Documents/other_new_sim"
+
+lam <- 5
+
+repli <- 100
+
+tr_age <- 10.09644
+  #"."
+values <- data.frame(nTips, Mu)
+i <- 1
+for(row in 1:nrow(values)){
+  n = values[row, "nTips"]
+  mu = values[row, "Mu"]
+  trees1 <- sim.fbd.rateshift.taxa(n = n, numbsim = 100, lambda = c(lam, (lam*2)), mu = c(mu, (mu*2)), psi = c(0.1, 0.1), times = c((tr_age/2), tr_age))
+  
+  trees2 <- sim.fbd.rateshift.taxa(n = n, numbsim = 100, lambda = c(lam, (lam*2)), mu = c((mu*2), (mu*4)), psi = c(1, 1), times = c((tr_age/2), tr_age))
+  
+  
+  
+  i <- 1
+  
+  my_dir <- paste0(my_dir_base, "/MU_", n, "_", mu)
+  if (!dir.exists(my_dir)) {
+    dir.create(my_dir)
+  }
+  
+  #plot_path <- paste0(my_dir, "/plots")
+  #if (!dir.exists(plot_path)) {
+   # dir.create(plot_path)
+  
+  for(tree in trees1){
+    #edge_ma_len <- tree$edge.length
+   # edge_ma <- tree$edge
+    tree_dir <- paste0(my_dir, "/", i)
+    if (!dir.exists(tree_dir)) {
+      dir.create(tree_dir)
+    }
+    
+    mat_dir <- paste0(tree_dir, "/mat")
+    if (!dir.exists(mat_dir)) {
+      dir.create(mat_dir)
+    }
+    my_file <- file.path(tree_dir, paste0("tree1_", i, ".nex"))
+    
+    csv_file <- file.path(mat_dir, paste0("tree1_", i, ".nex", ".csv"))
+
+    f = sim.fossils.poisson(rate = rate, tree = tree)
+
+    tree_ape <- read.tree(text = write.tree(tree))
+    
+    write.nexus(tree_ape, file = my_file)
+    
+    write.table(f, paste0(csv_file), append = TRUE, sep = ",", row.names = FALSE,col.names = FALSE, quote = FALSE)
+    i <- i + 1
+  }
+  
+  i <- 1
+
+    for(tree in trees2){
+    #edge_ma_len <- tree$edge.length
+   # edge_ma <- tree$edge
+    tree_dir <- paste0(my_dir, "/", i)
+    if (!dir.exists(tree_dir)) {
+      dir.create(tree_dir)
+    }
+    
+    mat_dir <- paste0(tree_dir, "/mat")
+    if (!dir.exists(mat_dir)) {
+      dir.create(mat_dir)
+    }
+    my_file <- file.path(tree_dir, paste0("tree2_", i, ".nex"))
+    
+    csv_file <- file.path(mat_dir, paste0("tree2_", i, ".nex", ".csv"))
+
+    f = sim.fossils.poisson(rate = rate, tree = tree)
+
+    tree_ape <- read.tree(text = write.tree(tree))
+    
+    write.nexus(tree_ape, file = my_file)
+    
+    write.table(f, paste0(csv_file), append = TRUE, sep = ",", row.names = FALSE,col.names = FALSE, quote = FALSE)
+    i <- i + 1
+  }
+}
+
+
+```
+
+```{r}
+
+
+
+```
+
+
+
+
+| Number of Tips | Lambda          | Mu             |
+|----------------|-----------------|----------------|
+| 10             | 5               | 1              |
+| 10             | 5               | 2              |
+| 10             | 5               | 3              |
+| 10             | 5               | 4              |
+| 25             | 5               | 1              |
+| 25             | 5               | 2              |
+| 25             | 5               | 3              |
+| 25             | 5               | 4              |
+| 50             | 5               | 1              |
+| 50             | 5               | 2              |
+| 50             | 5               | 3              |
+| 50             | 5               | 4              |
