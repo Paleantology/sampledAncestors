@@ -1,0 +1,108 @@
+---
+title: "BF_calulations"
+author: "April Wright"
+date: "2023-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Let's get some Bayes Factors from our posterior traces.
+
+```{r}
+library(tidyverse)
+library(RevGadgets)
+```
+
+We start off by reading in our trace:
+
+```{r}
+files <- c("fbd_jump.log")
+trace <- readTrace(path = files, burnin = 0.3)
+```
+
+
+Next, some helper variables. These are the log BF scores that correspond to weak, substantial, and strong BF support.
+
+```{r}
+BF <- c(3.2, 10, 100)
+p = BF/(1+BF)
+```
+
+Next, this takes a bit of doing. We need to know the proportion of the posterior that each model takes up. 
+
+```{r}
+big_trace <- rbind(trace[[1]], trace[[2]])
+count <- big_trace  %>% 
+     group_by(character_indicator) %>% 
+     summarize(count = n())
+count$count[1]/sum(count)
+count$count[2]/sum(count)
+```
+This proportion is the Bayes Factor. Now, we need to take this number and compare it to a test statistic using the vector of Bayes Factor test statistics (p) above.
+
+On this plot, each model will be a bar. The prior (equal probability) will be in black. The red lines are support (lowest - weak support, the middle - substantial, the top - strong) The green ones are anti-support. Not sure we can see these with how these are calculated.
+
+```{r}
+
+plotTrace(trace = trace,
+          vars = c("character_indicator"))[[1]] +
+          ylim(0,1) +
+          geom_hline(yintercept=p, linetype=c("longdash","dashed","dotted"), color = "black") +
+          geom_hline(yintercept=1/5, color = "black") +
+     # modify legend location using ggplot2
+     theme(legend.position = c(0.40,0.825))
+
+#ggsave(filename = "solocharactermodel.png", width = 7, height = 7)
+```
+Note that for the FBD, we have 3 models. Thus, a flat prior should be at .33.
+```{r}
+BF <- c(3.2, 10, 100)
+p = (BF/(1+BF))
+plotTrace(trace = trace,
+          vars = c("fbd_indicator"))[[1]] +
+          ylim(0,1) +
+          geom_hline(yintercept=0.33, linetype="solid", color = "black") +
+          geom_hline(yintercept=p, linetype=c("longdash","dashed","dotted"), color = "red") +
+          geom_hline(yintercept=1-p, linetype=c("longdash","dashed","dotted"), color = "green") +
+     # modify legend location using ggplot2
+     theme(legend.position = c(0.40,0.825))
+#ggsave(filename = "solofbdmodel.png", width = 7, height = 7)
+
+```
+
+And the clock:
+
+Note that for the FBD, we have 3 models. Thus, a flat prior should be at .33.You'll notice the ACLN was sampled so infrequently it doesn't show.
+```{r}
+plotTrace(trace = trace,
+          vars = c("clock_indicator"))[[1]] +
+          ylim(0,1) +
+          geom_hline(yintercept=0.33, linetype="solid", color = "black") +
+          geom_hline(yintercept=p, linetype=c("longdash","dashed","dotted"), color = "red") +
+          geom_hline(yintercept=1-p, linetype=c("longdash","dashed","dotted"), color = "green") +
+     # modify legend location using ggplot2
+     theme(legend.position = c(0.40,0.825))
+#ggsave(filename = "soloclockmodel.png", width = 7, height = 7)
+
+```
+
+## Treespace plots
+
+First, we load in the trees. 
+
+```{r}
+
+my.trees <- load.multi("../output/rjMCMC_components/fbd/", format = "revbayes", trim = 10)
+my.treespace <- makeplot.treespace(my.trees, n.points = 100,
+                    fill.color = NA)
+
+```
+
+
+```{r}
+qplot(x, y, data = my.treespace$treespace.points.plot$data, color = chain) +theme_bw()
+ggsave("CompoJump.png")
+```
